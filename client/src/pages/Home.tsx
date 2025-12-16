@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { HeroSection } from "@/components/HeroSection";
 import { ProductCard, Product } from "@/components/ProductCard";
 import { CategoryCard } from "@/components/CategoryCard";
@@ -7,7 +8,9 @@ import { BlogCard, BlogPost } from "@/components/BlogCard";
 import { ArtistSection } from "@/components/ArtistSection";
 import { QuickViewModal } from "@/components/QuickViewModal";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight } from "lucide-react";
+import type { Product as DBProduct, Category, BlogPost as DBBlogPost } from "@shared/schema";
 
 import amigurumiImg from "@assets/generated_images/amigurumi_bear_product.png";
 import blanketImg from "@assets/generated_images/crochet_blanket_product.png";
@@ -21,103 +24,80 @@ interface HomeProps {
   onAddToCart: (product: Product) => void;
 }
 
-// todo: remove mock functionality
-const featuredProducts: Product[] = [
-  {
-    id: "1",
-    name: "Cute Bear Amigurumi",
-    price: 35.00,
-    originalPrice: 45.00,
-    image: amigurumiImg,
-    category: "Amigurumi",
-    isNew: true,
-  },
-  {
-    id: "2",
-    name: "Cozy Baby Blanket",
-    price: 89.00,
-    image: blanketImg,
-    category: "Blankets",
-    madeToOrder: true,
-  },
-  {
-    id: "3",
-    name: "Market Tote Bag",
-    price: 45.00,
-    image: toteImg,
-    category: "Accessories",
-    isNew: true,
-  },
-  {
-    id: "4",
-    name: "Dusty Rose Beanie",
-    price: 32.00,
-    image: beanieImg,
-    category: "Wearables",
-  },
-  {
-    id: "5",
-    name: "Boho Coaster Set",
-    price: 24.00,
-    originalPrice: 30.00,
-    image: coastersImg,
-    category: "Home Decor",
-  },
-  {
-    id: "6",
-    name: "Mini Bunny Amigurumi",
-    price: 28.00,
-    image: amigurumiImg,
-    category: "Amigurumi",
-    madeToOrder: true,
-  },
-];
+const categoryImages: Record<string, string> = {
+  "amigurumi": amigurumiImg,
+  "blankets": blanketImg,
+  "accessories": toteImg,
+  "home-decor": coastersImg,
+  "wearables": beanieImg,
+};
 
-// todo: remove mock functionality
-const categories = [
-  { name: "Amigurumi", image: amigurumiImg, href: "/shop?category=amigurumi", count: 12 },
-  { name: "Blankets", image: blanketImg, href: "/shop?category=blankets", count: 8 },
-  { name: "Accessories", image: toteImg, href: "/shop?category=accessories", count: 15 },
-  { name: "Home Decor", image: coastersImg, href: "/shop?category=home-decor", count: 10 },
-  { name: "Wearables", image: beanieImg, href: "/shop?category=wearables", count: 7 },
-];
+const productImages: Record<string, string> = {
+  "amigurumi": amigurumiImg,
+  "blankets": blanketImg,
+  "accessories": toteImg,
+  "home-decor": coastersImg,
+  "wearables": beanieImg,
+};
 
-// todo: remove mock functionality
-const blogPosts: BlogPost[] = [
-  {
-    id: "1",
-    title: "Getting Started with Amigurumi: A Beginner's Guide",
-    excerpt: "Learn the basics of creating adorable stuffed animals with this comprehensive guide for beginners. We'll cover essential stitches, materials, and tips.",
-    image: tutorialImg,
-    category: "Tutorial",
-    author: "Sarah Miller",
-    readTime: "8 min read",
-    date: "Dec 15, 2024",
-  },
-  {
-    id: "2",
-    title: "Essential Crochet Supplies for Your Craft Room",
-    excerpt: "A curated list of must-have tools and materials for every crocheter, from beginners to advanced makers.",
-    image: suppliesImg,
-    category: "Tips & Tricks",
-    author: "Sarah Miller",
-    readTime: "5 min read",
-    date: "Dec 10, 2024",
-  },
-  {
-    id: "3",
-    title: "How to Choose the Right Yarn for Your Project",
-    excerpt: "Understanding yarn weights, fibers, and textures to make the perfect choice for your next creation.",
-    image: blanketImg,
-    category: "Guide",
-    author: "Sarah Miller",
-    readTime: "6 min read",
-    date: "Dec 5, 2024",
-  },
-];
+const blogImages: string[] = [tutorialImg, suppliesImg, blanketImg];
+
+function mapDBProductToProduct(dbProduct: DBProduct, categories: Category[]): Product {
+  const category = categories.find(c => c.id === dbProduct.categoryId);
+  const categorySlug = category?.slug || "accessories";
+  
+  return {
+    id: String(dbProduct.id),
+    name: dbProduct.name,
+    price: parseFloat(dbProduct.price),
+    originalPrice: dbProduct.originalPrice ? parseFloat(dbProduct.originalPrice) : undefined,
+    image: productImages[categorySlug] || amigurumiImg,
+    category: category?.name || "Accessories",
+    isNew: dbProduct.isNew || false,
+    isSoldOut: dbProduct.isSoldOut || false,
+    madeToOrder: dbProduct.madeToOrder || false,
+  };
+}
+
+function mapDBBlogPostToBlogPost(dbPost: DBBlogPost, index: number): BlogPost {
+  return {
+    id: String(dbPost.id),
+    title: dbPost.title,
+    excerpt: dbPost.excerpt,
+    image: blogImages[index % blogImages.length],
+    category: dbPost.category,
+    author: dbPost.author,
+    readTime: dbPost.readTime,
+    date: dbPost.publishedAt 
+      ? new Date(dbPost.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : 'Dec 16, 2024',
+  };
+}
 
 export default function Home({ onAddToCart }: HomeProps) {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['/api/categories'],
+  });
+
+  const { data: dbProducts = [], isLoading: productsLoading } = useQuery<DBProduct[]>({
+    queryKey: ['/api/products'],
+  });
+
+  const { data: dbBlogPosts = [], isLoading: blogLoading } = useQuery<DBBlogPost[]>({
+    queryKey: ['/api/blog'],
+  });
+
+  const products = dbProducts.map(p => mapDBProductToProduct(p, categories));
+  const blogPosts = dbBlogPosts.slice(0, 3).map((p, i) => mapDBBlogPostToBlogPost(p, i));
+
+  const categoryCards = categories.map(cat => ({
+    name: cat.name,
+    image: categoryImages[cat.slug] || amigurumiImg,
+    href: `/shop?category=${cat.slug}`,
+    count: cat.productCount || 0,
+  }));
 
   return (
     <div className="min-h-screen">
@@ -134,17 +114,25 @@ export default function Home({ onAddToCart }: HomeProps) {
               Discover handcrafted crochet creations, each made with love and premium materials
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-            {categories.map((category) => (
-              <CategoryCard
-                key={category.name}
-                name={category.name}
-                image={category.image}
-                href={category.href}
-                productCount={category.count}
-              />
-            ))}
-          </div>
+          {categoriesLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="aspect-square rounded-xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+              {categoryCards.map((category) => (
+                <CategoryCard
+                  key={category.name}
+                  name={category.name}
+                  image={category.image}
+                  href={category.href}
+                  productCount={category.count}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -167,16 +155,24 @@ export default function Home({ onAddToCart }: HomeProps) {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {featuredProducts.slice(0, 4).map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={onAddToCart}
-                onQuickView={setQuickViewProduct}
-              />
-            ))}
-          </div>
+          {productsLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="aspect-[3/4] rounded-xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.slice(0, 4).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={onAddToCart}
+                  onQuickView={setQuickViewProduct}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -203,17 +199,29 @@ export default function Home({ onAddToCart }: HomeProps) {
             </Link>
           </div>
           
-          {/* Featured Blog Post */}
-          <div className="mb-8">
-            <BlogCard post={blogPosts[0]} featured />
-          </div>
-          
-          {/* Other Blog Posts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {blogPosts.slice(1).map((post) => (
-              <BlogCard key={post.id} post={post} />
-            ))}
-          </div>
+          {blogLoading ? (
+            <div className="space-y-8">
+              <Skeleton className="h-64 rounded-xl" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Skeleton className="h-48 rounded-xl" />
+                <Skeleton className="h-48 rounded-xl" />
+              </div>
+            </div>
+          ) : blogPosts.length > 0 ? (
+            <>
+              {/* Featured Blog Post */}
+              <div className="mb-8">
+                <BlogCard post={blogPosts[0]} featured />
+              </div>
+              
+              {/* Other Blog Posts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {blogPosts.slice(1).map((post) => (
+                  <BlogCard key={post.id} post={post} />
+                ))}
+              </div>
+            </>
+          ) : null}
         </div>
       </section>
 

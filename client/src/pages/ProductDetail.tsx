@@ -1,27 +1,59 @@
 import { useState } from "react";
 import { useParams, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard, Product } from "@/components/ProductCard";
 import { Heart, Minus, Plus, ShoppingCart, Truck, Shield, RotateCcw, ChevronLeft } from "lucide-react";
+import type { Product as DBProduct, Category } from "@shared/schema";
 
 import amigurumiImg from "@assets/generated_images/amigurumi_bear_product.png";
 import blanketImg from "@assets/generated_images/crochet_blanket_product.png";
 import toteImg from "@assets/generated_images/crochet_tote_bag.png";
 import beanieImg from "@assets/generated_images/crochet_beanie_hat.png";
+import coastersImg from "@assets/generated_images/crochet_coasters_set.png";
 
 interface ProductDetailProps {
   onAddToCart: (product: Product) => void;
 }
 
-// todo: remove mock functionality
-const allProducts: Product[] = [
-  { id: "1", name: "Cute Bear Amigurumi", price: 35.00, originalPrice: 45.00, image: amigurumiImg, category: "Amigurumi", isNew: true },
-  { id: "2", name: "Cozy Baby Blanket", price: 89.00, image: blanketImg, category: "Blankets", madeToOrder: true },
-  { id: "3", name: "Market Tote Bag", price: 45.00, image: toteImg, category: "Accessories", isNew: true },
-  { id: "4", name: "Dusty Rose Beanie", price: 32.00, image: beanieImg, category: "Wearables" },
-];
+const categoryImages: Record<string, string> = {
+  "amigurumi": amigurumiImg,
+  "blankets": blanketImg,
+  "accessories": toteImg,
+  "home-decor": coastersImg,
+  "wearables": beanieImg,
+};
+
+function mapDBProductToProduct(dbProduct: DBProduct, categories: Category[]): Product {
+  const category = categories.find(c => c.id === dbProduct.categoryId);
+  const categorySlug = category?.slug || "accessories";
+  
+  return {
+    id: String(dbProduct.id),
+    name: dbProduct.name,
+    price: parseFloat(dbProduct.price),
+    originalPrice: dbProduct.originalPrice ? parseFloat(dbProduct.originalPrice) : undefined,
+    image: categoryImages[categorySlug] || amigurumiImg,
+    category: category?.name || "Accessories",
+    isNew: dbProduct.isNew || false,
+    isSoldOut: dbProduct.isSoldOut || false,
+    madeToOrder: dbProduct.madeToOrder || false,
+    description: dbProduct.description || undefined,
+    materials: dbProduct.materials || undefined,
+    careInstructions: dbProduct.careInstructions || undefined,
+    dimensions: dbProduct.dimensions || undefined,
+  };
+}
+
+interface ExtendedProduct extends Product {
+  description?: string;
+  materials?: string;
+  careInstructions?: string;
+  dimensions?: string;
+}
 
 export default function ProductDetail({ onAddToCart }: ProductDetailProps) {
   const { id } = useParams<{ id: string }>();
@@ -29,18 +61,59 @@ export default function ProductDetail({ onAddToCart }: ProductDetailProps) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
 
-  // todo: remove mock functionality
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ['/api/categories'],
+  });
+
+  const { data: dbProducts = [], isLoading } = useQuery<DBProduct[]>({
+    queryKey: ['/api/products'],
+  });
+
+  const allProducts: ExtendedProduct[] = dbProducts.map(p => mapDBProductToProduct(p, categories));
   const product = allProducts.find((p) => p.id === id) || allProducts[0];
-  const relatedProducts = allProducts.filter((p) => p.category === product.category && p.id !== product.id);
+  const relatedProducts = allProducts.filter((p) => p.category === product?.category && p.id !== product?.id);
   
-  const images = [product.image, product.image, product.image, product.image];
+  const images = product ? [product.image, product.image, product.image, product.image] : [];
 
   const handleAddToCart = () => {
+    if (!product) return;
     for (let i = 0; i < quantity; i++) {
       onAddToCart(product);
     }
-    console.log("Added to cart:", product.name, "x", quantity);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen py-8">
+        <div className="mx-auto max-w-7xl px-4">
+          <Skeleton className="h-10 w-40 mb-6" />
+          <div className="grid lg:grid-cols-2 gap-12">
+            <Skeleton className="aspect-square rounded-2xl" />
+            <div className="space-y-6">
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-12 w-3/4" />
+              <Skeleton className="h-8 w-40" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen py-8">
+        <div className="mx-auto max-w-7xl px-4 text-center">
+          <h1 className="font-serif text-2xl font-bold mb-4">Product not found</h1>
+          <Link href="/shop">
+            <Button>Return to Shop</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-8">
@@ -104,10 +177,10 @@ export default function ProductDetail({ onAddToCart }: ProductDetailProps) {
             </div>
 
             <p className="text-muted-foreground text-lg leading-relaxed">
-              This adorable handmade piece is lovingly crafted with premium yarn and attention 
+              {product.description || `This adorable handmade piece is lovingly crafted with premium yarn and attention 
               to every detail. Perfect for gifting or adding a cozy, handcrafted touch to your 
               home. Each piece is unique and may have slight variations, which adds to its 
-              handmade charm.
+              handmade charm.`}
             </p>
 
             <div className="space-y-4 border-t border-b py-6">
@@ -203,28 +276,19 @@ export default function ProductDetail({ onAddToCart }: ProductDetailProps) {
                 </p>
                 <ul>
                   <li>Handmade with attention to every detail</li>
-                  <li>Approximately 8 inches tall</li>
+                  {product.dimensions && <li>{product.dimensions}</li>}
                   <li>Soft, huggable design</li>
-                  <li>Safety eyes securely attached</li>
-                  <li>Stuffed with premium polyester fiberfill</li>
+                  <li>Safety eyes securely attached (if applicable)</li>
+                  <li>Stuffed with premium polyester fiberfill (if applicable)</li>
                 </ul>
               </div>
             </TabsContent>
             <TabsContent value="materials" className="pt-6">
               <div className="prose dark:prose-invert max-w-none">
                 <h3>Materials</h3>
-                <ul>
-                  <li>100% premium acrylic yarn</li>
-                  <li>Polyester fiberfill stuffing</li>
-                  <li>Safety eyes and nose</li>
-                </ul>
+                <p>{product.materials || "100% premium acrylic yarn, polyester fiberfill stuffing"}</p>
                 <h3>Care Instructions</h3>
-                <ul>
-                  <li>Spot clean with mild soap and water</li>
-                  <li>Air dry completely before use</li>
-                  <li>Do not machine wash or tumble dry</li>
-                  <li>Keep away from direct heat sources</li>
-                </ul>
+                <p>{product.careInstructions || "Spot clean with mild soap and water. Air dry completely before use. Do not machine wash or tumble dry. Keep away from direct heat sources."}</p>
               </div>
             </TabsContent>
             <TabsContent value="shipping" className="pt-6">

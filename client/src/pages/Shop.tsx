@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { ProductCard, Product } from "@/components/ProductCard";
 import { QuickViewModal } from "@/components/QuickViewModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, SlidersHorizontal } from "lucide-react";
+import type { Product as DBProduct, Category } from "@shared/schema";
 
 import amigurumiImg from "@assets/generated_images/amigurumi_bear_product.png";
 import blanketImg from "@assets/generated_images/crochet_blanket_product.png";
@@ -24,23 +27,30 @@ interface ShopProps {
   onAddToCart: (product: Product) => void;
 }
 
-const categories = ["all", "amigurumi", "blankets", "accessories", "home-decor", "wearables"];
+const categoryImages: Record<string, string> = {
+  "amigurumi": amigurumiImg,
+  "blankets": blanketImg,
+  "accessories": toteImg,
+  "home-decor": coastersImg,
+  "wearables": beanieImg,
+};
 
-// todo: remove mock functionality
-const allProducts: Product[] = [
-  { id: "1", name: "Cute Bear Amigurumi", price: 35.00, originalPrice: 45.00, image: amigurumiImg, category: "Amigurumi", isNew: true },
-  { id: "2", name: "Cozy Baby Blanket", price: 89.00, image: blanketImg, category: "Blankets", madeToOrder: true },
-  { id: "3", name: "Market Tote Bag", price: 45.00, image: toteImg, category: "Accessories", isNew: true },
-  { id: "4", name: "Dusty Rose Beanie", price: 32.00, image: beanieImg, category: "Wearables" },
-  { id: "5", name: "Boho Coaster Set", price: 24.00, originalPrice: 30.00, image: coastersImg, category: "Home Decor" },
-  { id: "6", name: "Mini Bunny Amigurumi", price: 28.00, image: amigurumiImg, category: "Amigurumi", madeToOrder: true },
-  { id: "7", name: "Chunky Throw Blanket", price: 120.00, image: blanketImg, category: "Blankets", isNew: true },
-  { id: "8", name: "Crochet Plant Hanger", price: 35.00, image: toteImg, category: "Home Decor" },
-  { id: "9", name: "Winter Scarf", price: 48.00, image: beanieImg, category: "Wearables", madeToOrder: true },
-  { id: "10", name: "Elephant Amigurumi", price: 42.00, image: amigurumiImg, category: "Amigurumi" },
-  { id: "11", name: "Table Runner", price: 55.00, image: coastersImg, category: "Home Decor", isNew: true },
-  { id: "12", name: "Beach Bag", price: 58.00, image: toteImg, category: "Accessories", isSoldOut: true },
-];
+function mapDBProductToProduct(dbProduct: DBProduct, categories: Category[]): Product {
+  const category = categories.find(c => c.id === dbProduct.categoryId);
+  const categorySlug = category?.slug || "accessories";
+  
+  return {
+    id: String(dbProduct.id),
+    name: dbProduct.name,
+    price: parseFloat(dbProduct.price),
+    originalPrice: dbProduct.originalPrice ? parseFloat(dbProduct.originalPrice) : undefined,
+    image: categoryImages[categorySlug] || amigurumiImg,
+    category: category?.name || "Accessories",
+    isNew: dbProduct.isNew || false,
+    isSoldOut: dbProduct.isSoldOut || false,
+    madeToOrder: dbProduct.madeToOrder || false,
+  };
+}
 
 export default function Shop({ onAddToCart }: ShopProps) {
   const [location] = useLocation();
@@ -52,43 +62,57 @@ export default function Shop({ onAddToCart }: ShopProps) {
   const [sortBy, setSortBy] = useState("featured");
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['/api/categories'],
+  });
+
+  const { data: dbProducts = [], isLoading: productsLoading } = useQuery<DBProduct[]>({
+    queryKey: ['/api/products'],
+  });
+
+  const allCategories = ["all", ...categories.map(c => c.slug)];
+
+  const products = dbProducts.map(p => mapDBProductToProduct(p, categories));
+
   const filteredProducts = useMemo(() => {
-    let products = [...allProducts];
+    let result = [...products];
     
     if (selectedCategory !== "all") {
-      products = products.filter(
+      result = result.filter(
         (p) => p.category.toLowerCase().replace(/\s+/g, "-") === selectedCategory
       );
     }
     
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      products = products.filter(
+      result = result.filter(
         (p) => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query)
       );
     }
     
     switch (sortBy) {
       case "price-low":
-        products.sort((a, b) => a.price - b.price);
+        result.sort((a, b) => a.price - b.price);
         break;
       case "price-high":
-        products.sort((a, b) => b.price - a.price);
+        result.sort((a, b) => b.price - a.price);
         break;
       case "newest":
-        products.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+        result.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
         break;
       default:
         break;
     }
     
-    return products;
-  }, [selectedCategory, searchQuery, sortBy]);
+    return result;
+  }, [products, selectedCategory, searchQuery, sortBy]);
 
   const formatCategoryName = (cat: string) => {
     if (cat === "all") return "All Products";
     return cat.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   };
+
+  const isLoading = categoriesLoading || productsLoading;
 
   return (
     <div className="min-h-screen py-8">
@@ -136,7 +160,7 @@ export default function Shop({ onAddToCart }: ShopProps) {
         {/* Category Tabs */}
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
           <TabsList className="flex-wrap h-auto gap-2 bg-transparent p-0">
-            {categories.map((cat) => (
+            {allCategories.map((cat) => (
               <TabsTrigger
                 key={cat}
                 value={cat}
@@ -155,7 +179,13 @@ export default function Shop({ onAddToCart }: ShopProps) {
         </p>
 
         {/* Products Grid */}
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <Skeleton key={i} className="aspect-[3/4] rounded-xl" />
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <ProductCard
