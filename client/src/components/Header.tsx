@@ -45,6 +45,7 @@ const navLinks = [
   { name: "Shop", href: "/shop" },
   { name: "Blog", href: "/blog" },
   { name: "About", href: "/about" },
+  { name: "Admin", href: "/admin" },
 ];
 
 export function Header({ cartItems, onRemoveFromCart, onUpdateQuantity }: HeaderProps) {

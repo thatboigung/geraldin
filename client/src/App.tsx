@@ -14,6 +14,7 @@ import Blog from "@/pages/Blog";
 import About from "@/pages/About";
 import ProductDetail from "@/pages/ProductDetail";
 import NotFound from "@/pages/not-found";
+import Admin from "@/pages/Admin";
 
 interface CartItem {
   id: string;
@@ -92,6 +93,9 @@ function AppContent() {
           </Route>
           <Route path="/product/:id">
             <ProductDetail onAddToCart={handleAddToCart} />
+          </Route>
+          <Route path="/admin">
+            <Admin />
           </Route>
           <Route component={NotFound} />
         </Switch>

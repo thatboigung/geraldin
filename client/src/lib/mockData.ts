@@ -1,5 +1,5 @@
 // Mock data copied from server seed for offline mode
-export const categories = [
+export let categories = [
   { id: 1, name: "Fairy Puke", slug: "fairy-puke", image: "/images/categories/fairy-puke.jpg", productCount: 10 },
   { id: 2, name: "Bralettes", slug: "bralettes", image: "/images/categories/bralettes.jpg", productCount: 8 },
   { id: 3, name: "Femme", slug: "femme", image: "/images/categories/femme.jpg", productCount: 12 },
@@ -7,7 +7,7 @@ export const categories = [
   { id: 5, name: "Shrugs / Mesh Sleeves", slug: "shrugs-mesh-sleeves", image: "/images/categories/shrugs-mesh-sleeves.jpg", productCount: 7 },
 ];
 
-export const products = [
+export let products = [
   {
     id: 1,
     name: "Cozy Bunny Amigurumi",
@@ -152,7 +152,7 @@ export const products = [
   },
 ];
 
-export const blogPosts = [
+export let blogPosts = [
   {
     id: 1,
     title: "Getting Started with Amigurumi: A Beginner's Guide",
@@ -210,7 +210,7 @@ export const blogPosts = [
   },
 ];
 
-export const artistProfile = {
+export let artistProfile = {
   id: 1,
   name: "Geraldin",
   bio: "Hi — I'm Geraldin, the maker behind NAIA. I design and handcraft every piece in my small studio, blending playful color and thoughtful construction.",
