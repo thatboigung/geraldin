@@ -28,11 +28,11 @@ interface ShopProps {
 }
 
 const categoryImages: Record<string, string> = {
-  "amigurumi": amigurumiImg,
-  "blankets": blanketImg,
-  "accessories": toteImg,
-  "home-decor": coastersImg,
-  "wearables": beanieImg,
+  "fairy-puke": amigurumiImg,
+  "bralettes": beanieImg,
+  "femme": coastersImg,
+  "bag-top-sets": toteImg,
+  "shrugs-mesh-sleeves": blanketImg,
 };
 
 function mapDBProductToProduct(dbProduct: DBProduct, categories: Category[]): Product {

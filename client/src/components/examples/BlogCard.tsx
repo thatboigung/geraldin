@@ -9,6 +9,7 @@ const mockPost: BlogPost = {
   image: tutorialImg,
   category: "Tutorial",
   author: "Sarah Miller",
+  author: "Geraldin",
   readTime: "8 min read",
   date: "Dec 15, 2024",
 };

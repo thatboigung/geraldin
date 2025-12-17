@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { handleMockRequest } from "./mockApi";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -12,6 +13,13 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  // Route to mock when calling internal API during offline mode
+  if (url.startsWith("/api")) {
+    const mock = await handleMockRequest(method, url, data);
+    await throwIfResNotOk(mock as unknown as Response);
+    return mock as unknown as Response;
+  }
+
   const res = await fetch(url, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
@@ -29,7 +37,21 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const url = queryKey.join("/") as string;
+
+    if (url.startsWith("/api")) {
+      const mock = await handleMockRequest("GET", url);
+      if (unauthorizedBehavior === "returnNull" && mock.status === 401) {
+        return null;
+      }
+      if (!mock.ok) {
+        const txt = (await mock.text()) || String(mock.status);
+        throw new Error(`${mock.status}: ${txt}`);
+      }
+      return await mock.json();
+    }
+
+    const res = await fetch(url, {
       credentials: "include",
     });
 

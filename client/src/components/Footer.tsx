@@ -6,10 +6,10 @@ import { Heart } from "lucide-react";
 
 const shopLinks = [
   { name: "All Products", href: "/shop" },
-  { name: "Amigurumi", href: "/shop?category=amigurumi" },
-  { name: "Blankets", href: "/shop?category=blankets" },
-  { name: "Accessories", href: "/shop?category=accessories" },
-  { name: "Home Decor", href: "/shop?category=home-decor" },
+  { name: "Fairy Puke", href: "/shop?category=fairy-puke" },
+  { name: "Bralettes", href: "/shop?category=bralettes" },
+  { name: "Femme", href: "/shop?category=femme" },
+  { name: "Bag + Top Sets", href: "/shop?category=bag-top-sets" },
 ];
 
 const supportLinks = [
@@ -27,7 +27,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div className="space-y-4">
             <Link href="/">
-              <span className="font-serif text-2xl font-bold">Yarn & Hook</span>
+              <span className="font-serif text-2xl font-bold">NAIA</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Handcrafted crochet creations made with love. Each piece is unique and carries 
@@ -94,7 +94,7 @@ export function Footer() {
         <div className="border-t mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground flex items-center gap-1">
-              Made with <Heart className="h-4 w-4 text-primary fill-current" /> by Sarah Miller
+              Made with <Heart className="h-4 w-4 text-primary fill-current" /> by Geraldin
             </p>
             <div className="flex items-center gap-4">
               <SiVisa className="h-8 w-8 text-muted-foreground" />
@@ -102,7 +102,7 @@ export function Footer() {
               <SiPaypal className="h-8 w-8 text-muted-foreground" />
             </div>
             <p className="text-sm text-muted-foreground">
-              &copy; 2024 Yarn & Hook. All rights reserved.
+              &copy; 2024 NAIA. All rights reserved.
             </p>
           </div>
         </div>

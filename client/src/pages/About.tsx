@@ -40,15 +40,14 @@ export default function About() {
               <p className="text-primary text-sm tracking-widest uppercase font-medium">
                 The Story Behind the Stitches
               </p>
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold">
-                Hi, I'm Sarah Miller
-              </h1>
+                  <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold">
+                    Hi, I'm Geraldin
+                  </h1>
               <div className="space-y-4 text-muted-foreground text-lg leading-relaxed">
-                <p>
-                  Welcome to Yarn & Hook! I'm so happy you're here. My journey with crochet 
-                  began over 15 years ago when my grandmother placed a hook and yarn in my 
-                  hands and patiently taught me my first chain stitch.
-                </p>
+                    <p>
+                      Welcome to NAIA! I'm so happy you're here. My creative journey began when I
+                      first fell in love with textiles and the possibilities of yarn.
+                    </p>
                 <p>
                   What started as afternoons spent learning from grandma has blossomed into 
                   a lifelong passion. Today, I create each piece in my sunny home studio, 
@@ -70,7 +69,7 @@ export default function About() {
             <div className="aspect-[3/4] overflow-hidden rounded-2xl">
               <img
                 src={artistImage}
-                alt="Sarah Miller - Crochet Artist"
+                    alt="Geraldin - NAIA"
                 className="h-full w-full object-cover"
               />
             </div>
@@ -97,12 +96,10 @@ export default function About() {
               up my grandmother's old hooks and yarn. What started as a way to unwind 
               became my calling.
             </p>
-            <p>
-              In 2018, I took the leap and turned my passion into Yarn & Hook. Since 
-              then, I've been blessed to create pieces for customers around the world 
-              - from baby blankets that become family heirlooms to amigurumi that spark 
-              joy in children (and adults!) everywhere.
-            </p>
+                <p>
+                  In 2018, I took the leap and turned my passion into NAIA. Since then, I’ve
+                  focused on making pieces that feel playful, wearable, and distinctly handmade.
+                </p>
           </div>
         </div>
       </section>

@@ -174,7 +174,7 @@ async function seed() {
       content: "Amigurumi is the Japanese art of crocheting small stuffed animals and creatures. In this guide, we'll cover everything you need to know to get started...",
       image: "/images/blog/amigurumi-guide.jpg",
       category: "Tutorials",
-      author: "Sarah Chen",
+      author: "Geraldin",
       readTime: "8 min read"
     },
     {
@@ -184,7 +184,7 @@ async function seed() {
       content: "Choosing the right yarn can make or break your crochet project. Here are our top 5 recommendations for different project types...",
       image: "/images/blog/yarn-selection.jpg",
       category: "Materials",
-      author: "Sarah Chen",
+      author: "Geraldin",
       readTime: "5 min read"
     },
     {
@@ -194,7 +194,7 @@ async function seed() {
       content: "Your handmade crochet items deserve special care to maintain their beauty and longevity. Here's how to properly care for them...",
       image: "/images/blog/crochet-care.jpg",
       category: "Tips",
-      author: "Sarah Chen",
+      author: "Geraldin",
       readTime: "4 min read"
     },
     {
@@ -204,7 +204,7 @@ async function seed() {
       content: "Adding handmade crochet elements to your home decor creates a warm, inviting atmosphere that can't be replicated with store-bought items...",
       image: "/images/blog/home-decor.jpg",
       category: "Inspiration",
-      author: "Sarah Chen",
+      author: "Geraldin",
       readTime: "6 min read"
     },
     {
@@ -214,7 +214,7 @@ async function seed() {
       content: "Color selection is one of the most exciting parts of starting a new crochet project. Learn how to create stunning color combinations...",
       image: "/images/blog/color-theory.jpg",
       category: "Tutorials",
-      author: "Sarah Chen",
+      author: "Geraldin",
       readTime: "7 min read"
     },
   ];
@@ -224,13 +224,13 @@ async function seed() {
 
   // Seed Artist Profile
   const artistData = {
-    name: "Sarah Chen",
-    bio: "Hello! I'm Sarah, a passionate crochet artist based in Portland, Oregon. I've been crocheting for over 15 years, turning simple yarn into beautiful handcrafted treasures.",
-    story: "My journey with crochet began when my grandmother taught me the basics as a child. What started as a hobby has grown into a full-time passion. I believe every stitch carries love and intention, and I pour my heart into each piece I create. When I'm not crocheting, you can find me tending to my plants, exploring local farmers markets, or enjoying a cup of tea with my cat, Buttons.",
-    image: "/images/artist/sarah-profile.jpg",
-    instagramUrl: "https://instagram.com/sarahscrochet",
-    pinterestUrl: "https://pinterest.com/sarahscrochet",
-    etsyUrl: "https://etsy.com/shop/sarahscrochet"
+    name: "Geraldin",
+    bio: "Hello! I'm Geraldin, the maker behind NAIA. I design and handcraft wearable pieces that blend color, texture, and confidence.",
+    story: "My journey with textiles started early and has evolved into NAIA — a small studio focused on playful, wearable designs. I value slow craft and thoughtful materials.",
+    image: "/images/artist/geraldin-profile.jpg",
+    instagramUrl: "https://instagram.com/naia",
+    pinterestUrl: "https://pinterest.com/naia",
+    etsyUrl: "https://etsy.com/shop/naia"
   };
 
   const insertedArtist = await db.insert(artistProfile).values(artistData).returning();

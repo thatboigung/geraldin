@@ -1,4 +1,4 @@
-# Yarn & Hook - Crochet E-Commerce Website
+# NAIA - Crochet E-Commerce Website
 
 ## Overview
 

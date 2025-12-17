@@ -34,11 +34,11 @@ interface HeaderProps {
 }
 
 const categories = [
-  { name: "Amigurumi", href: "/shop?category=amigurumi" },
-  { name: "Blankets", href: "/shop?category=blankets" },
-  { name: "Accessories", href: "/shop?category=accessories" },
-  { name: "Home Decor", href: "/shop?category=home-decor" },
-  { name: "Wearables", href: "/shop?category=wearables" },
+  { name: "Fairy Puke", href: "/shop?category=fairy-puke" },
+  { name: "Bralettes", href: "/shop?category=bralettes" },
+  { name: "Femme", href: "/shop?category=femme" },
+  { name: "Bag + Top Sets", href: "/shop?category=bag-top-sets" },
+  { name: "Shrugs / Mesh Sleeves", href: "/shop?category=shrugs-mesh-sleeves" },
 ];
 
 const navLinks = [
@@ -77,8 +77,8 @@ export function Header({ cartItems, onRemoveFromCart, onUpdateQuantity }: Header
             </Button>
 
             <Link href="/" data-testid="link-home">
-              <span className="font-serif text-xl font-bold tracking-tight">
-                Yarn & Hook
+                <span className="font-serif text-xl font-bold tracking-tight">
+                NAIA
               </span>
             </Link>
 
@@ -256,8 +256,8 @@ export function Header({ cartItems, onRemoveFromCart, onUpdateQuantity }: Header
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent side="left">
           <SheetHeader>
-            <SheetTitle className="font-serif">Yarn & Hook</SheetTitle>
-          </SheetHeader>
+                  <SheetTitle className="font-serif">NAIA</SheetTitle>
+                </SheetHeader>
           <nav className="flex flex-col gap-2 mt-6">
             <Link href="/shop" onClick={() => setMobileMenuOpen(false)}>
               <Button variant="ghost" className="w-full justify-start">

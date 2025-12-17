@@ -12,7 +12,7 @@ export function ArtistSection() {
             <div className="aspect-[3/4] overflow-hidden rounded-2xl">
               <img
                 src={artistImage}
-                alt="Sarah Miller - Crochet Artist"
+                alt="Geraldin - NAIA"
                 className="h-full w-full object-cover"
               />
             </div>
@@ -22,12 +22,12 @@ export function ArtistSection() {
               Meet the Maker
             </p>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold">
-              Hi, I'm Sarah!
+              Hi, I'm Geraldin!
             </h2>
             <div className="space-y-4 text-muted-foreground text-lg leading-relaxed">
               <p>
-                Welcome to my little corner of the handmade world. I've been crocheting for over 15 years, 
-                and what started as a hobby taught by my grandmother has blossomed into my life's passion.
+                Welcome to NAIA. I create wearable, playful pieces that mix color and texture —
+                inspired by textiles, street style, and fearless experimentation.
               </p>
               <p>
                 Every piece I create is made with love, patience, and premium materials. From cozy blankets 
