@@ -122,7 +122,7 @@ export async function handleMockRequest(method: string, url: string, data?: unkn
     if (m === "GET") return jsonOk(artistProfile);
     if (m === "PUT" || m === "PATCH") {
       const body = (data || {}) as any;
-      artistProfile = { ...artistProfile, ...body } as any;
+      Object.assign(artistProfile, body);
       return jsonOk(artistProfile);
     }
   }
